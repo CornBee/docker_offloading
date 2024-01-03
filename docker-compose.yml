@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  localdev:
+    build:
+      context: .
+      dockerfile: Dockerfile.localdev
+    network_mode: host  # 호스트 네트워킹 모드 사용
+    volumes:
+      - ./src:/root/dev_ws/src  # 로컬 개발 소스 코드 마운트
+    environment:
+      - ROS_DOMAIN_ID=30
+
+  turtlebot3_sim:
+    build:
+      context: .
+      dockerfile: Dockerfile.turtlebot3
+    network_mode: host  # 호스트 네트워킹 모드 사용
+    environment:
+      - ROS_DOMAIN_ID=30
+    devices:
+      - "/dev/ttyACM0:/dev/ttyACM0"  # TurtleBot3 USB 포트
+    volumes:
+      - ./src:/root/turtlebot3_ws/src  # TurtleBot3 소스 코드 마운트
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G

@@ -1,0 +1,49 @@
+# Start with Ubuntu 18.04 as the base image (Jetson Nano does not support Ubuntu 20.04 and later)
+FROM ubuntu:18.04
+
+# Set non-interactive installation mode
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Update the package repository and install necessary tools
+RUN apt-get update && apt-get install -y \
+    locales \
+    curl \
+    gnupg2 \
+    lsb-release \
+    git
+
+# Set locale
+RUN locale-gen en_US en_US.UTF-8 \
+    && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+ENV LANG en_US.UTF-8
+
+# Add the ROS2 apt repository
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2.list
+
+# Install additional dependencies
+RUN apt-get update && apt-get install -y \
+    python3-colcon-common-extensions \
+    libboost-system-dev \
+    build-essential \
+    python3-argcomplete \
+    ros-dashing-ros-base \
+    ros-dashing-hls-lfcd-lds-driver \
+    ros-dashing-turtlebot3-msgs \
+    ros-dashing-dynamixel-sdk \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set the ROS environment for the TurtleBot3
+RUN echo 'source /opt/ros/dashing/setup.bash' >> ~/.bashrc \
+    && echo 'export ROS_DOMAIN_ID=30 #TURTLEBOT3' >> ~/.bashrc
+
+# Create a workspace for your ROS2 project
+RUN mkdir -p /root/turtlebot3_ws/src
+WORKDIR /root/turtlebot3_ws
+COPY turtlebot3 /root/turtlebot3_ws/src/turtlebot3
+
+
+# Build TurtleBot3 package
+RUN /bin/bash -c '. /opt/ros/dashing/setup.bash; colcon build --symlink-install'
+
+CMD ["bash"]
