@@ -17,6 +17,7 @@ RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt
 
 # Install additional dependencies
 RUN apt-get update && apt-get install -y \
+    ros-dashing-ros-base \
     python3-colcon-common-extensions \
     gazebo9 libgazebo9-dev \
     ros-dashing-gazebo-ros-pkgs \
@@ -39,10 +40,11 @@ RUN echo 'source /opt/ros/dashing/setup.bash' >> ~/.bashrc \
 RUN mkdir -p /workspace/src
 WORKDIR /workspace
 
-# Clone into the workspace
+# Clone ROS2 project into the workspace
 RUN git clone https://github.com/CornBee/turtlebot3 src/turtlebot3
 
 # Build your ROS2 project
 RUN /bin/bash -c 'source /opt/ros/dashing/setup.bash && colcon build'
 
-CMD ["bash"]
+# Keep container running indefinitely
+CMD ["tail", "-f", "/dev/null"]

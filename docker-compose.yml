@@ -17,8 +17,6 @@ services:
     network_mode: host  # 호스트 네트워킹 모드 사용
     environment:
       - ROS_DOMAIN_ID=30
-    devices:
-      - "/dev/ttyACM0:/dev/ttyACM0"  # TurtleBot3 USB 포트
     volumes:
       - ./src:/root/turtlebot3_ws/src  # TurtleBot3 소스 코드 마운트
     deploy:

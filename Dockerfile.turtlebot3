@@ -40,10 +40,12 @@ RUN echo 'source /opt/ros/dashing/setup.bash' >> ~/.bashrc \
 # Create a workspace for your ROS2 project
 RUN mkdir -p /root/turtlebot3_ws/src
 WORKDIR /root/turtlebot3_ws
-COPY turtlebot3 /root/turtlebot3_ws/src/turtlebot3
+COPY ../turtlebot3 /root/turtlebot3_ws/src/turtlebot3
+
 
 
 # Build TurtleBot3 package
 RUN /bin/bash -c '. /opt/ros/dashing/setup.bash; colcon build --symlink-install'
 
-CMD ["bash"]
+# Keep container running indefinitely
+CMD ["tail", "-f", "/dev/null"]
